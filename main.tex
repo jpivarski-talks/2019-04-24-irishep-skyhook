@@ -56,10 +56,59 @@
 
 % START START START START START START START START START START START START START
 
-\begin{frame}{http://iris-hep.org/analysis-connections}
+\begin{frame}{My view of the world}
 \vspace{0.25 cm}
 \begin{center}
 \includegraphics[width=0.8\linewidth]{analysis-connections-cross.png}
+\end{center}
+
+\scriptsize
+\vspace{-2.5\baselineskip}
+Biased? Incomplete? Help me fix it.
+
+\textcolor{blue}{\url{https://github.com/iris-hep/analysis-connections}}
+\end{frame}
+
+\begin{frame}{Activities in Analysis Systems building toward an ntupleless future}
+\vspace{0.5 cm}
+\Large {\bf Query System:} big data on server, users request reduced output
+\begin{center}
+\includegraphics[width=0.6\linewidth]{basic-block-diagram.pdf}
+\end{center}
+
+\normalsize
+\begin{itemize}
+\item \textcolor{darkblue}{Mark Neubauer, Ben Galewsky:} query scheduling, data delivery, iDDS
+\item \textcolor{darkblue}{Gordon Watts, Emma Torro, Mason Proffitt:} query expression language
+\item \textcolor{darkblue}{Jim Pivarski, Henry Schreiner:} event data processing, histogram aggregation
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Feedback from analysis development}
+\vspace{0.5 cm}
+\begin{columns}
+\column{0.2\linewidth}
+\includegraphics[width=\linewidth]{coffea-logo.png}
+
+\column{0.8\linewidth}
+\hspace{-0.2 cm}\Huge Coffea
+
+\vspace{0.25 cm}
+\large {\bf C}olumnar {\bf O}bject {\bf F}ramework {\bf F}or {\bf E}fficient {\bf A}nalysis
+
+\vspace{0.25 cm}
+\normalsize Matteo~Cremonesi, Lindsey~Gray, Oliver~Gutsche, Allison~Hall, Bo~Jayatilaka, Igor~Mandrichenko, Kevin~Pedro, Nick~Smith~[FNAL]
+\end{columns}
+
+\begin{center}
+\begin{minipage}{0.8\linewidth}
+\large Performing two complete CMS analyses
+\begin{itemize}
+\item Dark Higgs search
+\item Boosted SM $H \to b\bar{b}$
+\end{itemize}
+using my \textcolor{darkblue}{awkward-array}, Ben's \textcolor{darkblue}{distributed processing with Spark}, and Andrew Melo's \textcolor{darkblue}{Spark cluster at Vanderbilt}.
+\end{minipage}
 \end{center}
 \end{frame}
 

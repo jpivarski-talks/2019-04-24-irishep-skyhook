@@ -84,8 +84,8 @@ Biased? Incomplete? Help me fix it.
 \end{itemize}
 \end{frame}
 
-\begin{frame}{Feedback from analysis development}
-\vspace{0.5 cm}
+\begin{frame}{Working closely with analysis groups}
+\vspace{0.75 cm}
 \begin{columns}
 \column{0.2\linewidth}
 \includegraphics[width=\linewidth]{coffea-logo.png}
@@ -100,16 +100,32 @@ Biased? Incomplete? Help me fix it.
 \normalsize Matteo~Cremonesi, Lindsey~Gray, Oliver~Gutsche, Allison~Hall, Bo~Jayatilaka, Igor~Mandrichenko, Kevin~Pedro, Nick~Smith~[FNAL]
 \end{columns}
 
+\vspace{0.25 cm}
 \begin{center}
-\begin{minipage}{0.8\linewidth}
+\begin{minipage}{0.85\linewidth}
 \large Performing two complete CMS analyses
 \begin{itemize}
 \item Dark Higgs search
 \item Boosted SM $H \to b\bar{b}$
 \end{itemize}
-using my \textcolor{darkblue}{awkward-array}, Ben's \textcolor{darkblue}{distributed processing with Spark}, and Andrew Melo's \textcolor{darkblue}{Spark cluster at Vanderbilt}.
+using my \textcolor{darkblue}{awkward-array event processing}, Ben's \textcolor{darkblue}{distributed processing with Spark}, and Andrew Melo's \textcolor{darkblue}{Spark cluster at Vanderbilt}.
 \end{minipage}
 \end{center}
 \end{frame}
+
+\begin{frame}{Input data format}
+\large
+\vspace{0.5 cm}
+We've found that \textcolor{darkorange}{\bf jagged arrays} are a useful way to work with data, particularly in interactive analysis sessions.
+
+\vspace{0.5 cm}
+When jagged arrays are the fundamental unit of data fetching, rather than event records, it's easier to make use of ROOT's selective reading.
+
+\vspace{0.5 cm}
+
+
+
+\end{frame}
+
 
 \end{document}

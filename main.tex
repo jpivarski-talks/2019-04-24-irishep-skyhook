@@ -113,19 +113,28 @@ using my \textcolor{darkblue}{awkward-array event processing}, Ben's \textcolor{
 \end{center}
 \end{frame}
 
-\begin{frame}{Input data format}
+\begin{frame}{Data granularity}
 \large
 \vspace{0.5 cm}
-We've found that \textcolor{darkorange}{\bf jagged arrays} are a useful way to work with data, particularly in interactive analysis sessions.
+We've found that it's useful to work with analysis data as individual branches converted into jagged arrays, rather than event records.
+\begin{itemize}
+\item efficient processing in Python
+\item analysis code readability
+\item \textcolor{darkblue}{columnar granularity}
+\end{itemize}
 
 \vspace{0.5 cm}
-When jagged arrays are the fundamental unit of data fetching, rather than event records, it's easier to make use of ROOT's selective reading.
+\uncover<2->{One-plot queries (not yet realistic) would require $<1$\% of the columns but nearly all of the rows (events).}
 
 \vspace{0.5 cm}
+\uncover<2->{Whole-analysis workflows (demonstrated with Coffea) require $\sim 10$\% of the columns with loose trigger cuts.}
 
-
-
+\vspace{0.5 cm}
+\uncover<3->{\textcolor{darkblue}{For applications like this, the unit of data is columns, not files or events.}}
 \end{frame}
+
+
+
 
 
 \end{document}

@@ -133,7 +133,27 @@ We've found that it's useful to work with analysis data as individual branches c
 \uncover<3->{\textcolor{darkblue}{For applications like this, the unit of data is columns, not files or events.}}
 \end{frame}
 
+\begin{frame}{Data formats, delivery mechanisms}
+\large
+\vspace{0.5 cm}
+For various reasons, Coffea analyses have used \textcolor{darkblue}{ROOT files} (most direct), \textcolor{darkblue}{CouchBase} (Striped data delivery service), \textcolor{darkblue}{Parquet files} (Spark), and \textcolor{darkblue}{ZIP files of arrays} (Numpy native).
 
+\vspace{0.5 cm}
+They all deliver jagged arrays.
+
+\vspace{0.5 cm}
+Ideally, the query service should get data from a component that
+
+\vspace{0.25 cm}
+\begin{itemize}
+\item understands the data well enough to deliver logical arrays, not raw file bytes;
+\item doesn't double disk space with a secondary format;
+\item puts intelligence close to the source to avoid unnecessary transfers.
+\end{itemize}
+
+\vspace{0.25 cm}
+In IRIS-HEP Analysis Systems, we're calling such a service iDDS.
+\end{frame}
 
 
 

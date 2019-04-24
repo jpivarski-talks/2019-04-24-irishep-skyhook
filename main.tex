@@ -69,7 +69,7 @@ Biased? Incomplete? Help me fix it.
 \textcolor{blue}{\url{https://github.com/iris-hep/analysis-connections}}
 \end{frame}
 
-\begin{frame}{Activities in Analysis Systems building toward an ntupleless future}
+\begin{frame}{Building an ntupleless future}
 \vspace{0.5 cm}
 \Large {\bf Query System:} big data on server, users request reduced output
 \begin{center}
@@ -94,7 +94,7 @@ Biased? Incomplete? Help me fix it.
 \hspace{-0.2 cm}\Huge Coffea
 
 \vspace{0.25 cm}
-\large {\bf C}olumnar {\bf O}bject {\bf F}ramework {\bf F}or {\bf E}fficient {\bf A}nalysis
+\large {\bf C}olumnar {\bf O}bject {\bf F}ramework {\bf F}or {\bf E}ffective {\bf A}nalysis
 
 \vspace{0.25 cm}
 \normalsize Matteo~Cremonesi, Lindsey~Gray, Oliver~Gutsche, Allison~Hall, Bo~Jayatilaka, Igor~Mandrichenko, Kevin~Pedro, Nick~Smith~[FNAL]
@@ -116,7 +116,7 @@ using my \textcolor{darkblue}{awkward-array event processing}, Ben's \textcolor{
 \begin{frame}{Data granularity}
 \large
 \vspace{0.5 cm}
-We've found that it's useful to work with analysis data as individual branches converted into jagged arrays, rather than event records.
+We've found that it's useful to work with analysis data as individual ROOT branches converted into jagged arrays, rather than event records.
 \begin{itemize}
 \item efficient processing in Python
 \item analysis code readability
@@ -133,28 +133,151 @@ We've found that it's useful to work with analysis data as individual branches c
 \uncover<3->{\textcolor{darkblue}{For applications like this, the unit of data is columns, not files or events.}}
 \end{frame}
 
-\begin{frame}{Data formats, delivery mechanisms}
+\begin{frame}{Data delivery to query system}
 \large
 \vspace{0.5 cm}
-For various reasons, Coffea analyses have used \textcolor{darkblue}{ROOT files} (most direct), \textcolor{darkblue}{CouchBase} (Striped data delivery service), \textcolor{darkblue}{Parquet files} (Spark), and \textcolor{darkblue}{ZIP files of arrays} (Numpy native).
+One of IRIS-HEP DOMA's projects is to create an \textcolor{darkblue}{intelligent Data Delivery System (iDDS)}, which would respond to requests for data in high-level terms (\textcolor{gray}{``muon kinematics in the first million events of 2018 data''}), rather than low-level terms (\textcolor{gray}{``bytes 1024--2048 of some/file.root''}).
 
 \vspace{0.5 cm}
-They all deliver jagged arrays.
+\uncover<2->{For query applications, we would be requesting column segments, maybe with very simple cuts (e.g.\ trigger lines). Complex filtering happens in query system.}
 
 \vspace{0.5 cm}
-Ideally, the query service should get data from a component that
-
-\vspace{0.25 cm}
+\begin{uncoverenv}<3->
+This is a good match to what Skyhook can deliver:
 \begin{itemize}
-\item understands the data well enough to deliver logical arrays, not raw file bytes;
-\item doesn't double disk space with a secondary format;
-\item puts intelligence close to the source to avoid unnecessary transfers.
+\item format-aware data delivery;
+\item reformatting: decompression, recompression, concatenation, slicing;
+\item intelligence close to the source.
 \end{itemize}
-
-\vspace{0.25 cm}
-In IRIS-HEP Analysis Systems, we're calling such a service iDDS.
+\end{uncoverenv}
 \end{frame}
 
+\begin{frame}{The ROOT file format is complicated}
+\large
+\vspace{0.5 cm}
+Just finding the bytes for \textcolor{gray}{``muon $p_T$ in events 1--1000''} is a non-trivial task, requiring infrastructure like ROOT, uproot, groot, root4j, etc.---which places limits on how ``close to storage'' the intelligence can go.
+
+\vspace{0.5 cm}
+\uncover<2->{However, each logical entity {\it has} a fixed byte range in the files. A full framework can identify these ranges and a save them to an index to simplify lookups.}
+
+\vspace{0.5 cm}
+\uncover<3->{\textcolor{blue}{\small\url{https://github.com/diana-hep/uproot-skyhook}} uses uproot to map logical row/entry numbers and column names to TBasket locations in the ROOT files. The index is formatted as Flatbuffers (Jeff's preferred format)---any process that can read Flatbuffers can deliver jagged arrays from the indexed ROOT files.}
+\end{frame}
+
+\begin{frame}[fragile]{Sample: the Flatbuffers schema}
+\scriptsize
+\begin{columns}[t]
+\column{0.5\linewidth}
+\begin{minted}{protobuf}
+include "interpretation.fbs";
+
+enum Compression: int {
+  none = 0,
+  zlib = 1,
+  lzma = 2,
+  old = 3,
+  lz4 = 4
+}
+
+table Branch {
+  local_offsets: [ulong] (required);
+  page_seeks: [ulong] (required);
+  compression: Compression;
+  iscompressed: [bool];
+  compressedbytes: [uint];
+  uncompressedbytes: [uint] (required);
+  basket_page_offsets: [uint] (required);
+  basket_keylens: [uint];
+  basket_data_borders: [uint];
+}
+\end{minted}
+
+\column{0.5\linewidth}
+\begin{minted}{protobuf}
+table Column {
+  interp: uproot_skyhook
+      .interpretation_generated
+      .Interpretation (required);
+  title: string;
+}
+
+table File {
+  location: string (required);
+  uuid: string (required);
+  branches: [Branch] (required);
+}
+
+table Dataset {
+  name: string (required);
+  treepath: string (required);
+  colnames: [string] (required);
+  columns: [Column] (required);
+  files: [File] (required);
+  global_offsets: [ulong] (required);
+  location_prefix: string;
+}
+\end{minted}
+
+\end{columns}
+\end{frame}
+
+\begin{frame}{Current status---before seeing Jeff's talk today!}
+\Large
+\vspace{0.5 cm}
+\begin{itemize}\setlength{\itemsep}{0.5 cm}
+\item What Skyhook provides is a good match to what iDDS is trying to achieve.
+\item The unit of data for a query system is a column segment.
+\item I provided Jeff with a way to generate mappings from high-level entities---row/entry numbers and column names---to low-level byte positions.
+\item Once a prototype works, it could be tested with Coffea.
+\end{itemize}
+\end{frame}
+
+%% \begin{frame}{Data formats, delivery mechanisms}
+%% \large
+%% \vspace{0.5 cm}
+%% For various reasons, Coffea analyses have used \textcolor{darkblue}{ROOT files} (most direct), \textcolor{darkblue}{CouchBase} (Striped data delivery service), \textcolor{darkblue}{Parquet files} (Spark), and \textcolor{darkblue}{ZIP files of arrays} (Numpy native).
+
+%% \vspace{0.5 cm}
+%% They all deliver jagged arrays.
+
+%% \vspace{0.5 cm}
+%% \uncover<2->{Ideally, the query service should get data from a component that}
+
+%% \vspace{0.1 cm}
+%% \begin{itemize}
+%% \item<2-> understands the format well enough to deliver logical arrays, not raw bytes;
+%% \item<3-> doesn't double disk space with a secondary format;
+%% \item<4-> puts intelligence close to the source to avoid unnecessary transfers.
+%% \end{itemize}
+
+%% \vspace{0.25 cm}
+%% \uncover<5->{In IRIS-HEP Analysis Systems, we're calling such a service iDDS.}
+%% \end{frame}
+
+%% \begin{frame}{Which is why Skyhook can help}
+%% \large
+%% \vspace{0.5 cm}
+%% The goals align well with iDDS, demonstrated with a successful application.
+
+%% \vspace{0.5 cm}
+%% \begin{columns}
+%% \column{0.47\linewidth}
+%% \underline{PostgreSQL Application}
+
+%% \begin{itemize}
+%% \item delivers SQL tables
+%% \end{itemize}
+
+%% \column{0.47\linewidth}
+%% \underline{ROOT Application}
+
+%% \begin{itemize}
+%% \item delivers jagged arrays
+
+
+%% \end{itemize}
+%% \end{columns}
+%% \end{frame}
 
 
 \end{document}
